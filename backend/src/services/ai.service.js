@@ -112,8 +112,8 @@ Use natural Nigerian Hausa and English technical terms.
 `,
 
  
-# learn: `
-# LEARN MODE
+learn: `
+#LEARN MODE
 
 Teach the exact topic the user asks about.
 
