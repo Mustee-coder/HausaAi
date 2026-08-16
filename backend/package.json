@@ -4,10 +4,10 @@
   "description": "HausaAI Backend",
   "main": "index.js",
   "type": "module",
-  "scripts": {
-    "dev": "nodemon src/index.js",
-    "start": "node index.js"
-  },
+"scripts": {
+  "dev": "nodemon src/index.js",
+  "start": "node src/index.js"
+},
   "keywords": [
     "hausa",
     "ai",
