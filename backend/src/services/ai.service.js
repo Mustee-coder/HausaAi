@@ -111,7 +111,7 @@ OUTPUT FORMAT:
 Use natural Nigerian Hausa and English technical terms.
 `,
 
-  learn: `
+ 
 # learn: `
 # LEARN MODE
 
