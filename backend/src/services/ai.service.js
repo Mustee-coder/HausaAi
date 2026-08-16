@@ -111,15 +111,14 @@ OUTPUT FORMAT:
 Use natural Nigerian Hausa and English technical terms.
 `,
 
- 
-learn: `
-#LEARN MODE
+  learn: `
+# LEARN MODE
 
 Teach the exact topic the user asks about.
 
 First understand the user's intended meaning from the context.
 
-IMPORTANT:
+IMPORTANT — DISAMBIGUATION:
 - Do not assume that every topic is technical or related to programming.
 - Hausa words may have multiple meanings. Use the surrounding context to determine the intended meaning.
 - Use common, natural meanings of Hausa words unless the context clearly indicates a specialized meaning.
@@ -145,38 +144,21 @@ For non-programming topics, use an example appropriate to that topic.
 Ask ONE short practice question.
 Do not answer the question unless the user asks.
 
-RULES:
+PROGRAMMING-SPECIFIC RULES (only apply when the topic is actually programming):
 
 - Accuracy is more important than forcing Hausa translations.
 - Use natural Hausa + correct English technical terms where appropriate.
 - Always use the current API of the exact library when teaching programming.
 - Avoid deprecated or legacy syntax.
 - Prefer async/await where appropriate.
-
-- For modern node-redis v4+, use:
-  await client.connect()
-  await client.set()
-  await client.get()
-
-- Do NOT use old callback-style Redis examples.
-
-- For BullMQ, use Queue and Worker.
-- Do NOT use old Bull .process() syntax.
-
+- For modern node-redis v4+, use: await client.connect(), await client.set(), await client.get() — do NOT use old callback-style Redis examples.
+- For BullMQ, use Queue and Worker — do NOT use old Bull .process() syntax.
 - Default programming examples to JavaScript/Node.js because the user works with the MERN stack.
-- Stay on the exact topic.
-- Do not drift into related technologies unless the user asks for comparison.
+- Stay on the exact topic. Do not drift into related technologies unless the user asks for comparison.
 
-Avoid stiff, machine-translated Hausa such as:
-"yin frontend"
-"yin backend"
-
-Prefer:
-"gina frontend"
-"gina backend"
-"gina web application"
+Avoid stiff, machine-translated Hausa such as "yin frontend", "yin backend".
+Prefer "gina frontend", "gina backend", "gina web application".
 `,
-
 };
 
 const CURRENT_FACT_RULES = `
@@ -193,31 +175,19 @@ const CURRENT_FACT_RULES = `
 - Do not rely on your training knowledge when it conflicts with the supplied web information.
 - Do not claim that something is current unless the supplied web information supports it.
 - When appropriate, mention the source name or URL from the supplied results.
-
-- When web search results are provided, use them as the primary source for current information.
-- Do not rely on memory for current facts when web results are available.
 - Prefer higher-relevance and credible sources.
 - Do not treat a search result as confirmed fact if the source does not support the claim.
 - If the sources are weak, conflicting, or insufficient, clearly say that the information could not be reliably verified.
 - Never invent a source, URL, date, person, event, or claim.
-When answering current-information questions:
 - Prefer results with recent publication dates.
 - Mention the source name when making important current claims.
 - Do not call an old article "today's news".
 - If the search results do not contain genuinely recent information, say so.
 `;
 
-async function generateAIResponse(
-  userMessage,
-  mode = "chat",
-  history = []
-) {
-  const modeInstruction =
-    MODE_PROMPTS[mode] || MODE_PROMPTS.chat;
-
-  const safeHistory = Array.isArray(history)
-    ? history.slice(-10)
-    : [];
+async function generateAIResponse(userMessage, mode = "chat", history = []) {
+  const modeInstruction = MODE_PROMPTS[mode] || MODE_PROMPTS.chat;
+  const safeHistory = Array.isArray(history) ? history.slice(-10) : [];
 
   let searchContext = "";
 
@@ -226,76 +196,30 @@ async function generateAIResponse(
     try {
       const searchResults = await webSearch(userMessage);
 
-      if (
-        searchResults?.results &&
-        searchResults.results.length > 0
-      ) {
+      if (searchResults?.results && searchResults.results.length > 0) {
         const compact = searchResults.results
-  .slice(0, 5)
-  .map((result, index) => {
-    return `${index + 1}. ${result.title}
-URL: ${result.url}
-Relevance Score: ${result.score}
-Content: ${result.content?.slice(0, 700) || ""}`;
-  })
-  .join("\n\n");
+          .slice(0, 5)
+          .map((result, index) => {
+            return `${index + 1}. ${result.title}\nURL: ${result.url}\nRelevance Score: ${result.score}\nContent: ${result.content?.slice(0, 700) || ""}`;
+          })
+          .join("\n\n");
 
-        searchContext = `
-
-# CURRENT WEB INFORMATION
-
-${compact}
-
-${CURRENT_FACT_RULES}
-`;
+        searchContext = `\n\n# CURRENT WEB INFORMATION\n\n${compact}\n\n${CURRENT_FACT_RULES}`;
       } else {
-        searchContext = `
-
-# CURRENT INFORMATION
-
-Web search returned no reliable results.
-
-Do not invent current facts.
-
-Clearly say that the current information could not be verified.
-`;
+        searchContext = `\n\n# CURRENT INFORMATION\nWeb search returned no reliable results. Do not invent current facts. Clearly say that the current information could not be verified.`;
       }
     } catch (error) {
-      console.error(
-        "Web search error:",
-        error.message
-      );
-
-      searchContext = `
-
-# CURRENT INFORMATION
-
-Web search is currently unavailable.
-
-Do not invent current facts.
-
-Clearly say that the current information could not be verified.
-`;
+      console.error("Web search error:", error.message);
+      searchContext = `\n\n# CURRENT INFORMATION\nWeb search is currently unavailable. Do not invent current facts. Clearly say that the current information could not be verified.`;
     }
   }
 
-  const systemPrompt =
-    BASE_SYSTEM_PROMPT +
-    "\n\n" +
-    modeInstruction +
-    "\n\n" +
-    searchContext;
+  const systemPrompt = BASE_SYSTEM_PROMPT + "\n\n" + modeInstruction + "\n\n" + searchContext;
 
   const messages = [
-    {
-      role: "system",
-      content: systemPrompt,
-    },
+    { role: "system", content: systemPrompt },
     ...safeHistory,
-    {
-      role: "user",
-      content: userMessage,
-    },
+    { role: "user", content: userMessage },
   ];
 
   const temperature =
@@ -308,27 +232,17 @@ Clearly say that the current information could not be verified.
           : 0.5;
 
   try {
-    const response =
-      await groq.chat.completions.create({
-        model: "llama-3.3-70b-versatile",
-        messages,
-        temperature,
-        max_tokens: 1200,
-      });
+    const response = await groq.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      messages,
+      temperature,
+      max_tokens: 2000,
+    });
 
-    return (
-      response.choices[0]?.message?.content?.trim() ||
-      ""
-    );
+    return response.choices[0]?.message?.content?.trim() || "";
   } catch (error) {
-    console.error(
-      "HausaAI generateAIResponse error:",
-      error.message
-    );
-
-    throw new Error(
-      "AI service failed to generate a response."
-    );
+    console.error("HausaAI generateAIResponse error:", error.message);
+    throw new Error("AI service failed to generate a response.");
   }
 }
 
