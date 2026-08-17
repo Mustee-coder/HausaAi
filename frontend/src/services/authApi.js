@@ -1,6 +1,12 @@
 import axios from "axios";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+// Vite sets import.meta.env.DEV = true automatically when running `npm run dev`,
+// and false in a production build (e.g. what Vercel builds/deploys).
+// This means the correct URL is picked automatically — no manual .env
+// switching needed between local development and deployment.
+const API_BASE = import.meta.env.DEV
+  ? "http://localhost:5000/api"
+  : "https://hausaai.onrender.com/api";
 
 // Shared axios instance — withCredentials: true means every request
 // automatically sends/receives the httpOnly cookie, no need to repeat it.

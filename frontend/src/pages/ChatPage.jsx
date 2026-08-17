@@ -214,7 +214,7 @@ const ChatPage = ({ user, onLogout }) => {
   );
 
   return (
-    <div className="flex h-screen bg-slate-950 text-white">
+    <div className="flex h-dvh bg-slate-950 text-white">
       {/* Desktop sidebar — always visible on md+ */}
       <aside className="hidden w-72 flex-col border-r border-slate-800 bg-slate-900 md:flex">
         <div className="flex items-center justify-between border-b border-slate-800 p-4">
