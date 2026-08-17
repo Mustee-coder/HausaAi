@@ -32,15 +32,18 @@ async function sendMessage(req, res) {
       });
     }
 
-    const priorMessages = await Message.find({ conversationId: conversation._id })
-      .sort({ createdAt: 1 })
-      .limit(10);
+    const priorMessages = await Message.find({
+  conversationId: conversation._id,
+})
+  .sort({ createdAt: -1 })
+  .limit(10);
 
-    const history = priorMessages.map((m) => ({
-      role: m.role,
-      content: m.content,
-    }));
-
+const history = priorMessages
+  .reverse()
+  .map((m) => ({
+    role: m.role,
+    content: m.content,
+  }));
     await Message.create({
       conversationId: conversation._id,
       role: "user",

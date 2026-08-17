@@ -48,4 +48,41 @@ export const sendMessage = async (message, mode = "chat", history = [], conversa
   return response.data;
 };
 
+export const getConversations = async () => {
+  const response = await api.get("/chat/conversations");
+
+  if (!response.data.success) {
+    throw new Error(
+      response.data.message || "Could not fetch conversations."
+    );
+  }
+
+  return response.data.conversations;
+};
+
+export const getConversationById = async (conversationId) => {
+  const response = await api.get(`/chat/${conversationId}`);
+
+  if (!response.data.success) {
+    throw new Error(
+      response.data.message || "Could not fetch conversation."
+    );
+  }
+
+  return response.data;
+};
+
+export const deleteConversation = async (conversationId) => {
+  const response = await api.delete(`/chat/${conversationId}`);
+
+  if (!response.data.success) {
+    throw new Error(
+      response.data.message || "Could not delete conversation."
+    );
+  }
+
+  return response.data;
+};
+
+
 export default api;
