@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
+import LandingPage from "./pages/LandingPage";
 import ChatPage from "./pages/ChatPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
@@ -48,6 +49,21 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route
+          path="/"
+          element={
+            checking ? (
+              <div className="min-h-screen flex items-center justify-center bg-slate-950 text-slate-400">
+                Ana bincike...
+              </div>
+            ) : user ? (
+              <Navigate to="/chat" replace />
+            ) : (
+              <LandingPage />
+            )
+          }
+        />
+
+        <Route
           path="/login"
           element={
             user ? (
@@ -78,8 +94,8 @@ function App() {
           }
         />
 
-        {/* Default: send to /chat (which redirects to /login if not authed) */}
-        <Route path="*" element={<Navigate to="/chat" replace />} />
+        {/* Any unknown path falls back to the landing route */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );
