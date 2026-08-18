@@ -11,15 +11,31 @@ import translateRoutes from "./routes/translate.routes.js";
 
 const app = express();
 
+// Allow both the deployed frontend (Vercel) and local development
+// (Vite's default port) at the same time — no more manually swapping
+// CLIENT_URL back and forth between local and production.
+const allowedOrigins = [
+  process.env.CLIENT_URL, // production, e.g. https://hausa-ai-two.vercel.app
+  "http://localhost:5173", // local Vite dev server
+  "http://127.0.0.1:5173",
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173", // your Vite frontend URL
+    origin: function (origin, callback) {
+      // requests with no origin (curl, server-to-server, mobile apps) are allowed
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.warn("Blocked by CORS:", origin);
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true, // allows cookies to be sent/received
   })
 );
 app.use(express.json());
 app.use(cookieParser());
-
 
 app.use("/api/auth", authRoutes);
 app.use("/api/job", jobRoutes);

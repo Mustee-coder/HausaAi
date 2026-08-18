@@ -1,9 +1,8 @@
-import Groq from "groq-sdk";
+import axios from "axios";
 import { webSearch, needsWebSearch } from "./search.service.js";
 
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
-});
+const HF_API_URL = "https://router.huggingface.co/v1/chat/completions";
+const HF_MODEL = "meta-llama/Llama-3.3-70B-Instruct";
 
 const BASE_SYSTEM_PROMPT = `
 You are HausaAI, an AI assistant for Hausa-speaking people in Nigeria.
@@ -238,17 +237,43 @@ async function generateAIResponse(userMessage, mode = "chat", history = []) {
           ? 0.4
           : 0.5;
 
-  try {
-    const response = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
-      messages,
-      temperature,
-      max_tokens: 2000,
-    });
+  if (!process.env.HF_TOKEN) {
+    console.error("HF_TOKEN is not configured.");
+    throw new Error("AI service is not configured. Please contact support.");
+  }
 
-    return response.choices[0]?.message?.content?.trim() || "";
+  try {
+    const response = await axios.post(
+      HF_API_URL,
+      {
+        model: HF_MODEL,
+        messages,
+        temperature,
+        max_tokens: 2000,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.HF_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+        timeout: 30000, // 30s — avoid hanging forever on a slow/dead connection
+      }
+    );
+
+    return response.data.choices?.[0]?.message?.content?.trim() || "";
   } catch (error) {
-    console.error("HausaAI generateAIResponse error:", error.message);
+    if (error.response) {
+      // Hugging Face responded with an error status (4xx/5xx)
+      console.error("Hugging Face API error:", {
+        status: error.response.status,
+        data: error.response.data,
+      });
+    } else if (error.request) {
+      // Request was made but no response received (network/DNS/timeout)
+      console.error("Hugging Face network error:", error.message);
+    } else {
+      console.error("HausaAI generateAIResponse error:", error.message);
+    }
     throw new Error("AI service failed to generate a response.");
   }
 }
