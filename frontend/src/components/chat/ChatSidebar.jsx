@@ -1,3 +1,4 @@
+import logo from "../../assets/logo-navbar.png";
 const ChatSidebar = ({
   user,
   conversations,
@@ -73,14 +74,16 @@ const ChatSidebar = ({
 
   return (
     <>
-      {/* ================= DESKTOP SIDEBAR ================= */}
+      {/*DESKTOP SIDEBAR  */}
 
       <aside className="hidden w-[280px] shrink-0 flex-col border-r border-slate-800/80 bg-slate-900/70 md:flex">
         {/* Logo */}
         <div className="flex items-center gap-3 px-5 py-5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 font-bold">
-            H
-          </div>
+          <img
+            src={logo}
+            alt="HausaAI"
+            className="h-9 w-9 rounded-xl"
+          />
 
           <div>
             <h1 className="font-bold">HausaAI</h1>
@@ -150,9 +153,11 @@ const ChatSidebar = ({
             {/* Mobile header */}
             <div className="flex items-center justify-between border-b border-slate-800 px-4 py-4">
               <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-sm font-bold">
-                  H
-                </div>
+                <img
+                  src={logo}
+                  alt="HausaAI"
+                  className="h-8 w-8 rounded-lg"
+                />
 
                 <span className="font-bold">HausaAI</span>
               </div>

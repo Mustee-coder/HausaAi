@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import logo from "../assets/logo-navbar.png";
 
 const Navbar = () => {
   return (
@@ -11,9 +12,11 @@ const Navbar = () => {
           className="flex items-center gap-3"
           aria-label="HausaAI Home"
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-lg font-bold shadow-lg shadow-blue-600/20">
-            H
-          </div>
+          <img
+            src={logo}
+            alt="HausaAI"
+            className="h-10 w-10 rounded-xl shadow-lg shadow-blue-600/20"
+          />
 
           <div>
             <h1 className="text-lg font-bold tracking-tight text-white">

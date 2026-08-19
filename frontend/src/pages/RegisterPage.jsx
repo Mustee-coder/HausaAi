@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { registerUser } from "../services/authApi";
+import logo from "../assets/logo-navbar.png";
 
 const RegisterPage = ({ onRegisterSuccess }) => {
   const [name, setName] = useState("");
@@ -60,9 +61,11 @@ const RegisterPage = ({ onRegisterSuccess }) => {
             to="/"
             className="inline-flex items-center gap-3"
           >
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-600 text-lg font-bold shadow-lg shadow-blue-600/20">
-              H
-            </div>
+            <img
+              src={logo}
+              alt="HausaAI"
+              className="h-11 w-11 rounded-xl"
+            />
 
             <div className="text-left">
               <h1 className="text-xl font-bold tracking-tight">

@@ -35,7 +35,7 @@ const ChatPage = ({ user, onLogout }) => {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
-  /* ---------------- LOAD CONVERSATIONS ---------------- */
+  /*  LOAD CONVERSATIONS */
 
   useEffect(() => {
     const loadConversations = async () => {
@@ -55,7 +55,7 @@ const ChatPage = ({ user, onLogout }) => {
     loadConversations();
   }, []);
 
-  /* ---------------- AUTO SCROLL ---------------- */
+  /*  AUTO SCROLL  */
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({
@@ -63,7 +63,7 @@ const ChatPage = ({ user, onLogout }) => {
     });
   }, [messages, loading]);
 
-  /* ---------------- LOGOUT ---------------- */
+  /* LOGOUT  */
 
   const handleLogout = async () => {
     if (loggingOut) return;
@@ -80,7 +80,7 @@ const ChatPage = ({ user, onLogout }) => {
     }
   };
 
-  /* ---------------- NEW CHAT ---------------- */
+  /* NEW CHAT  */
 
   const handleNewChat = () => {
     if (loading || loadingConversation) return;
@@ -96,7 +96,7 @@ const ChatPage = ({ user, onLogout }) => {
     }, 100);
   };
 
-  /* ---------------- CLEAR CHAT ---------------- */
+  /*  CLEAR CHAT  */
 
   const handleClearChat = () => {
     if (loading || loadingConversation) return;
@@ -109,7 +109,7 @@ const ChatPage = ({ user, onLogout }) => {
     }, 100);
   };
 
-  /* ---------------- MODE CHANGE ---------------- */
+  /* MODE CHANGE  */
 
   const handleModeChange = (newMode) => {
     if (loading || loadingConversation || newMode === mode) {
@@ -126,7 +126,7 @@ const ChatPage = ({ user, onLogout }) => {
     }, 100);
   };
 
-  /* ---------------- SELECT CONVERSATION ---------------- */
+  /*  SELECT CONVERSATION  */
 
   const handleSelectConversation = async (id) => {
     if (
@@ -162,7 +162,7 @@ const ChatPage = ({ user, onLogout }) => {
     }
   };
 
-  /* ---------------- DELETE CONVERSATION ---------------- */
+  /*  DELETE CONVERSATION  */
 
   const handleDeleteConversation = async (id) => {
     if (loading || loadingConversation) return;
@@ -183,7 +183,7 @@ const ChatPage = ({ user, onLogout }) => {
     }
   };
 
-  /* ---------------- SEND MESSAGE ---------------- */
+  /*  SEND MESSAGE    */
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -253,7 +253,7 @@ const ChatPage = ({ user, onLogout }) => {
     }
   };
 
-  /* ---------------- UI ---------------- */
+  /*  UI */
 
   const currentModeLabel =
     mode === "chat"

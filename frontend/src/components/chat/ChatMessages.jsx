@@ -1,3 +1,5 @@
+import logo from "../../assets/logo-navbar.png";
+
 const ChatMessages = ({
   messages,
   loading,
@@ -21,9 +23,11 @@ const ChatMessages = ({
         {/* Empty state */}
         {messages.length === 0 && !loadingConversation && (
           <div className="flex min-h-[55vh] flex-col items-center justify-center text-center">
-            <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-600 text-2xl font-bold shadow-lg shadow-blue-600/20">
-              H
-            </div>
+            <img
+              src={logo}
+              alt="HausaAI"
+              className="mb-6 h-16 w-16 rounded-2xl shadow-lg shadow-blue-600/20"
+            />
 
             <h1 className="text-2xl font-bold sm:text-3xl">
               Barka da zuwa HausaAI
@@ -90,9 +94,11 @@ const ChatMessages = ({
               >
                 {/* AI Avatar */}
                 {!isUser && (
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-xs font-bold">
-                    H
-                  </div>
+                  <img
+                    src={logo}
+                    alt="HausaAI"
+                    className="h-8 w-8 shrink-0 rounded-lg"
+                  />
                 )}
 
                 <div
@@ -128,9 +134,11 @@ const ChatMessages = ({
           {/* AI Loading */}
           {loading && (
             <div className="flex gap-3">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-xs font-bold">
-                H
-              </div>
+              <img
+                src={logo}
+                alt="HausaAI"
+                className="h-8 w-8 shrink-0 rounded-lg"
+              />
 
               <div className="rounded-2xl rounded-bl-md bg-slate-900 px-5 py-4">
                 <div className="flex items-center gap-1.5">
