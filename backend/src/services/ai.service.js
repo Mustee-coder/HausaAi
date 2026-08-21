@@ -140,6 +140,7 @@ TECHNICAL ACCURACY:
 - TypeScript is a programming language/superset of JavaScript.
 - HTML is a markup language.
 - CSS is a stylesheet language.
+- REST means REpresentational State Transfer.
 - REST is an architectural style.
 - REST API is an API designed according to REST principles.
 - API means Application Programming Interface.
@@ -341,20 +342,18 @@ async function generateAIResponse(userMessage, mode = "chat", history = []) {
           Authorization: `Bearer ${process.env.HF_TOKEN}`,
           "Content-Type": "application/json",
         },
-        timeout: 30000, // 30s — avoid hanging forever on a slow/dead connection
+        timeout: 30000,
       }
     );
 
     return response.data.choices?.[0]?.message?.content?.trim() || "";
   } catch (error) {
     if (error.response) {
-      // Hugging Face responded with an error status (4xx/5xx)
       console.error("Hugging Face API error:", {
         status: error.response.status,
         data: error.response.data,
       });
     } else if (error.request) {
-      // Request was made but no response received (network/DNS/timeout)
       console.error("Hugging Face network error:", error.message);
     } else {
       console.error("HausaAI generateAIResponse error:", error.message);
