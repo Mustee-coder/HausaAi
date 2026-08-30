@@ -1,6 +1,8 @@
 import axios from "axios";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API_BASE = import.meta.env.DEV
+  ? "http://localhost:5000/api"
+  : "https://hausaai.onrender.com/api";
 
 // Shared instance — withCredentials ensures the httpOnly auth cookie
 // is sent on every request, so requireAuth middleware doesn't reject us.
