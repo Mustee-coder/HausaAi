@@ -1,8 +1,23 @@
 import axios from "axios";
 import { webSearch, needsWebSearch } from "./search.service.js";
 
+
+
+
 const HF_API_URL = "https://router.huggingface.co/v1/chat/completions";
 const HF_MODEL = "meta-llama/Llama-3.3-70B-Instruct";
+
+type AIMode =
+  | "chat"
+  | "translate"
+  | "job"
+  | "learn";
+
+interface ChatMessage {
+  role: "system" | "user" | "assistant";
+  content: string;
+}
+
 
 const BASE_SYSTEM_PROMPT = `
 You are HausaAI, an AI assistant for Hausa-speaking people in Nigeria.
@@ -43,7 +58,7 @@ Before responding, check:
 - Does the Hausa sound natural?
 `;
 
-const MODE_PROMPTS = {
+const MODE_PROMPTS: Record<AIMode, string> = {
   chat: `
 # CHAT MODE
 
@@ -277,7 +292,21 @@ const CURRENT_FACT_RULES = `
 - If the search results do not contain genuinely recent information, say so.
 `;
 
-async function generateAIResponse(userMessage, mode = "chat", history = []) {
+
+
+async function generateAIResponse(
+  userMessage: string,
+  mode: AIMode = "chat",
+  history: ChatMessage[] = []
+) {
+
+
+
+
+
+
+
+
   const modeInstruction = MODE_PROMPTS[mode] || MODE_PROMPTS.chat;
   const safeHistory = Array.isArray(history) ? history.slice(-10) : [];
 
@@ -300,8 +329,13 @@ async function generateAIResponse(userMessage, mode = "chat", history = []) {
       } else {
         searchContext = `\n\n# CURRENT INFORMATION\nWeb search returned no reliable results. Do not invent current facts. Clearly say that the current information could not be verified.`;
       }
-    } catch (error) {
-      console.error("Web search error:", error.message);
+    } catch (error: unknown) {
+  if (error instanceof Error) {
+    console.error("Web search error:", error.message);
+  } else {
+    console.error("Web search error:", error);
+  }
+      
       searchContext = `\n\n# CURRENT INFORMATION\nWeb search is currently unavailable. Do not invent current facts. Clearly say that the current information could not be verified.`;
     }
   }
@@ -347,19 +381,40 @@ async function generateAIResponse(userMessage, mode = "chat", history = []) {
     );
 
     return response.data.choices?.[0]?.message?.content?.trim() || "";
-  } catch (error) {
+  } catch (error: unknown) {
+  if (axios.isAxiosError(error)) {
     if (error.response) {
       console.error("Hugging Face API error:", {
         status: error.response.status,
         data: error.response.data,
       });
     } else if (error.request) {
-      console.error("Hugging Face network error:", error.message);
+      console.error(
+        "Hugging Face network error:",
+        error.message
+      );
     } else {
-      console.error("HausaAI generateAIResponse error:", error.message);
+      console.error(
+        "HausaAI generateAIResponse error:",
+        error.message
+      );
     }
-    throw new Error("AI service failed to generate a response.");
+  } else if (error instanceof Error) {
+    console.error(
+      "HausaAI generateAIResponse error:",
+      error.message
+    );
+  } else {
+    console.error(
+      "HausaAI generateAIResponse error:",
+      error
+    );
   }
+
+  throw new Error(
+    "AI service failed to generate a response."
+  );
+}
 }
 
 export { generateAIResponse };

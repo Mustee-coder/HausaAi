@@ -1,29 +1,44 @@
 import mongoose from "mongoose";
 
-const messageSchema = new mongoose.Schema(
+interface IMessage {
+  conversationId: mongoose.Types.ObjectId;
+  role: "user" | "assistant";
+  content: string;
+  language: "ha" | "en";
+}
+
+const messageSchema = new mongoose.Schema<IMessage>(
   {
     conversationId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Conversation",
       required: true,
     },
+
     role: {
       type: String,
       enum: ["user", "assistant"],
       required: true,
     },
+
     content: {
       type: String,
       required: true,
-      maxlength: 4000, // basic guard against abuse / runaway tokens
+      maxlength: 4000,
     },
+
     language: {
       type: String,
       enum: ["ha", "en"],
       default: "ha",
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
-export default mongoose.model("Message", messageSchema);
+export default mongoose.model<IMessage>(
+  "Message",
+  messageSchema
+);

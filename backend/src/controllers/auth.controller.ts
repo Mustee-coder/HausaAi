@@ -1,26 +1,49 @@
+import type { Request, Response } from "express";
+import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
-const generateToken = (userId) => {
-  return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
-    expiresIn: "7d",
-  });
+interface RegisterBody {
+  name: string;
+  email: string;
+  password: string;
+}
+
+const jwtSecret = process.env.JWT_SECRET;
+
+if (!jwtSecret) {
+  throw new Error("JWT_SECRET is not defined");
+}
+
+const generateToken = (userId: mongoose.Types.ObjectId): string => {
+  return jwt.sign(
+    { id: userId },
+    jwtSecret,
+    {
+      expiresIn: "7d",
+    }
+  );
 };
 
-const setAuthCookie = (res, token) => {
+const setAuthCookie = (
+  res: Response,
+  token: string
+): void => {
   res.cookie("token", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    sameSite:
+      process.env.NODE_ENV === "production"
+        ? "none"
+        : "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 };
 
-/**
- * POST /api/auth/register
- * body: { name, email, password }
- */
-async function register(req, res) {
+async function register(
+  req: Request<{}, {}, RegisterBody>,
+  res: Response
+) {
   try {
     const { name, email, password } = req.body;
 
@@ -37,35 +60,30 @@ async function register(req, res) {
         message: "Password must be at least 6 characters.",
       });
     }
-    
-    const normalizedEmail = email.toLowerCase().trim();
 
-const existingUser = await User.findOne({
-  email: normalizedEmail,
-});
+    const normalizedEmail = email
+      .toLowerCase()
+      .trim();
 
-if (existingUser) {
+    const existingUser = await User.findOne({
+      email: normalizedEmail,
+    });
+
+    if (existingUser) {
       return res.status(409).json({
         success: false,
         message: "An account with this email already exists.",
       });
     }
-    
-    
 
-const user = await User.create({
-  name: name.trim(),
-  email: normalizedEmail,
-  password,
-});
+    const user = await User.create({
+      name: name.trim(),
+      email: normalizedEmail,
+      password,
+    });
 
-
-
-    
-    
-    
-    
     const token = generateToken(user._id);
+
     setAuthCookie(res, token);
 
     return res.status(201).json({
@@ -77,7 +95,8 @@ const user = await User.create({
       },
     });
   } catch (error) {
-    console.error("register error:", error.message);
+    console.error("register error:", error);
+
     return res.status(500).json({
       success: false,
       message: "Could not create account. Please try again.",
@@ -85,11 +104,17 @@ const user = await User.create({
   }
 }
 
-/*
-  POST /api/auth/login
-  body: { email, password }
- */
-async function login(req, res) {
+
+
+interface LoginBody {
+  email: string;
+  password: string;
+}
+
+async function login(
+  req: Request<{}, {}, LoginBody>,
+  res: Response
+) {
   try {
     const { email, password } = req.body;
 
@@ -135,7 +160,7 @@ async function login(req, res) {
       },
     });
   } catch (error) {
-    console.error("login error:", error.message);
+    console.error("login error:", error);
 
     return res.status(500).json({
       success: false,
@@ -144,28 +169,46 @@ async function login(req, res) {
   }
 }
 
-/*
-  POST /api/auth/logout
- */
-async function logout(req, res) {
-  res.clearCookie("token", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-  });
+async function logout(
+  req: Request,
+  res: Response
+) {
+  try {
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite:
+        process.env.NODE_ENV === "production"
+          ? "none"
+          : "lax",
+    });
 
-  return res.status(200).json({
-    success: true,
-    message: "Logged out successfully.",
-  });
+    return res.status(200).json({
+      success: true,
+      message: "Logged out successfully.",
+    });
+  } catch (error) {
+    console.error("logout error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Could not log out. Please try again.",
+    });
+  }
 }
 
-/*
-  GET /api/auth/me
- requires auth middleware to have set req.user
- */
-async function getMe(req, res) {
+async function getMe(
+  req: Request,
+  res: Response
+) {
   try {
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: "Not authenticated.",
+      });
+    }
+
     const user = await User.findById(req.user.id);
 
     if (!user) {
@@ -185,7 +228,7 @@ async function getMe(req, res) {
       },
     });
   } catch (error) {
-    console.error("getMe error:", error.message);
+    console.error("getMe error:", error);
 
     return res.status(500).json({
       success: false,
@@ -194,4 +237,12 @@ async function getMe(req, res) {
   }
 }
 
-export { register, login, logout, getMe };
+
+
+
+export {
+  register,
+  login,
+  logout,
+  getMe,
+};

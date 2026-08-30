@@ -1,11 +1,30 @@
 import { tavily } from "@tavily/core";
 
+interface SearchResult {
+  title: string;
+  url: string;
+  content: string;
+  score: number;
+  source: string;
+  sourcePriority: number;
+}
+
+interface WebSearchResponse {
+  answer: string | null;
+  results: SearchResult[];
+}
+
+const tavilyApiKey = process.env.TAVILY_API_KEY;
+
+if (!tavilyApiKey) {
+  throw new Error("TAVILY_API_KEY is not defined");
+}
+
 const tvly = tavily({
-  apiKey: process.env.TAVILY_API_KEY,
+  apiKey: tavilyApiKey,
 });
 
-// Domains we generally trust more for current/factual information.
-// These are used for ranking, not as a hard restriction.
+// Trusted domains for current/factual information.
 const TRUSTED_DOMAINS = [
   "reuters.com",
   "apnews.com",
@@ -20,9 +39,9 @@ const TRUSTED_DOMAINS = [
   "github.com",
   "who.int",
   "un.org",
-];
+] as const;
 
-// Domains we don't want to prioritize when better sources exist.
+// Domains that should have lower priority when better sources exist.
 const LOW_PRIORITY_DOMAINS = [
   "tiktok.com",
   "youtube.com",
@@ -31,17 +50,20 @@ const LOW_PRIORITY_DOMAINS = [
   "facebook.com",
   "x.com",
   "twitter.com",
-];
+] as const;
 
-const getHostname = (url = "") => {
+const getHostname = (url: string = ""): string => {
   try {
-    return new URL(url).hostname.replace(/^www\./, "").toLowerCase();
+    return new URL(url)
+      .hostname
+      .replace(/^www\./, "")
+      .toLowerCase();
   } catch {
     return "";
   }
 };
 
-const isNewsQuery = (query = "") => {
+const isNewsQuery = (query: string = ""): boolean => {
   const text = query.toLowerCase();
 
   const newsKeywords = [
@@ -58,12 +80,12 @@ const isNewsQuery = (query = "") => {
     "breaking news",
   ];
 
-  return newsKeywords.some((keyword) => text.includes(keyword));
+  return newsKeywords.some((keyword) =>
+    text.includes(keyword)
+  );
 };
 
-const buildSearchQuery = (query) => {
-  const text = query.toLowerCase();
-
+const buildSearchQuery = (query: string): string => {
   if (isNewsQuery(query)) {
     return `${query} latest news today 2026`;
   }
@@ -71,7 +93,9 @@ const buildSearchQuery = (query) => {
   return query;
 };
 
-export const webSearch = async (query) => {
+export const webSearch = async (
+  query: string
+): Promise<WebSearchResponse> => {
   try {
     const searchQuery = buildSearchQuery(query);
 
@@ -81,7 +105,6 @@ export const webSearch = async (query) => {
       includeAnswer: true,
       includeRawContent: false,
 
-      // Ask Tavily to focus on recent information for news queries.
       ...(isNewsQuery(query) && {
         topic: "news",
       }),
@@ -95,11 +118,13 @@ export const webSearch = async (query) => {
     }
 
     // Remove duplicate URLs.
-    const seen = new Set();
+    const seen = new Set<string>();
 
-    const results = response.results
+    const results: SearchResult[] = response.results
       .filter((result) => {
-        if (!result?.url) return false;
+        if (!result?.url) {
+          return false;
+        }
 
         const normalizedUrl = result.url.split("#")[0];
 
@@ -115,13 +140,19 @@ export const webSearch = async (query) => {
 
         let sourcePriority = 0;
 
-        if (TRUSTED_DOMAINS.some((domain) => hostname.endsWith(domain))) {
+        const isTrusted = TRUSTED_DOMAINS.some(
+          (domain) => hostname === domain || hostname.endsWith(`.${domain}`)
+        );
+
+        const isLowPriority = LOW_PRIORITY_DOMAINS.some(
+          (domain) => hostname === domain || hostname.endsWith(`.${domain}`)
+        );
+
+        if (isTrusted) {
           sourcePriority = 2;
         }
 
-        if (
-          LOW_PRIORITY_DOMAINS.some((domain) => hostname.endsWith(domain))
-        ) {
+        if (isLowPriority) {
           sourcePriority = -1;
         }
 
@@ -149,8 +180,18 @@ export const webSearch = async (query) => {
       answer: response.answer || null,
       results,
     };
-  } catch (error) {
-    console.error("Web search error:", error.message);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error(
+        "Web search error:",
+        error.message
+      );
+    } else {
+      console.error(
+        "Web search error:",
+        error
+      );
+    }
 
     return {
       answer: null,
@@ -162,7 +203,9 @@ export const webSearch = async (query) => {
 /**
  * Decide whether the user's message needs live web information.
  */
-export const needsWebSearch = (message = "") => {
+export const needsWebSearch = (
+  message: string = ""
+): boolean => {
   const keywords = [
     // Hausa
     "yanzu",
@@ -214,7 +257,11 @@ export const needsWebSearch = (message = "") => {
     "2027",
   ];
 
-  const text = String(message).toLowerCase().trim();
+  const text = message
+    .toLowerCase()
+    .trim();
 
-  return keywords.some((keyword) => text.includes(keyword));
+  return keywords.some((keyword) =>
+    text.includes(keyword)
+  );
 };

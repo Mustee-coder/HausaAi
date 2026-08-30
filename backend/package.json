@@ -4,15 +4,16 @@
   "description": "HausaAI Backend",
   "main": "index.js",
   "type": "module",
-"scripts": {
-  "dev": "nodemon src/index.js",
-  "start": "node src/index.js"
-},
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
   "keywords": [
     "hausa",
     "ai",
     "llama",
-    "groq"
+    "hugging face"
   ],
   "author": "Mujittapha Magaji",
   "license": "ISC",
@@ -29,6 +30,14 @@
     "tavily": "^2.0.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^26.4.0",
+    "nodemon": "^3.1.10",
+    "tsx": "^4.23.12",
+    "typescript": "^5.9.2"
   }
 }
