@@ -1,9 +1,22 @@
 import { useState } from "react";
+import type { FormEvent } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { loginUser } from "../services/authApi";
+import { registerUser } from "../services/authApi";
 import logo from "../assets/logo-navbar.png";
 
-const LoginPage = ({ onLoginSuccess }) => {
+interface User {
+  _id?: string;
+  name?: string;
+  email?: string;
+}
+
+interface RegisterPageProps {
+  onRegisterSuccess?: (user: User) => void;
+}
+
+
+const RegisterPage = ({ onRegisterSuccess }: RegisterPageProps) => {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -11,28 +24,39 @@ const LoginPage = ({ onLoginSuccess }) => {
 
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
 
-    if (!email.trim() || !password) {
-      setError("Ka shigar da email da password.");
+    if (!name.trim() || !email.trim() || !password) {
+      setError("Ka cika dukkan filayen.");
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("Password dole ya kasance akalla haruffa 6.");
       return;
     }
 
     setLoading(true);
 
     try {
-      const data = await loginUser(email.trim(), password);
-
-      onLoginSuccess?.(data.user);
-      navigate("/chat");
-    } catch (err) {
-      setError(
-        err.message ||
-          "An samu matsala wajen shiga. Ka sake gwadawa."
+      const data = await registerUser(
+        name.trim(),
+        email.trim(),
+        password
       );
-    } finally {
+
+      onRegisterSuccess?.(data.user);
+      navigate("/chat");
+    } catch (err: unknown) {
+  setError(
+    err instanceof Error
+      ? err.message
+      : "An samu matsala wajen yin rijista. Ka sake gwadawa."
+  );
+}
+   finally {
       setLoading(false);
     }
   };
@@ -47,11 +71,14 @@ const LoginPage = ({ onLoginSuccess }) => {
 
         {/* Brand */}
         <div className="mb-8 text-center">
-          <Link to="/" className="flex items-center justify-center gap-3">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-3"
+          >
             <img
               src={logo}
               alt="HausaAI"
-              className="h-9 w-9 rounded-xl"
+              className="h-11 w-11 rounded-xl"
             />
 
             <div className="text-left">
@@ -66,15 +93,15 @@ const LoginPage = ({ onLoginSuccess }) => {
           </Link>
 
           <h2 className="mt-8 text-2xl font-bold sm:text-3xl">
-            Barka da dawowa
+            Ƙirƙiri asusunka
           </h2>
 
           <p className="mt-2 text-sm text-slate-400">
-            Shiga asusunka domin ci gaba da amfani da HausaAI.
+            Yi rijista domin fara amfani da HausaAI.
           </p>
         </div>
 
-        {/* Login Card */}
+        {/* Register Card */}
         <form
           onSubmit={handleSubmit}
           className="rounded-2xl border border-slate-800 bg-slate-900/80 p-6 shadow-2xl shadow-black/20 backdrop-blur-xl sm:p-7"
@@ -90,8 +117,29 @@ const LoginPage = ({ onLoginSuccess }) => {
             </div>
           )}
 
-          {/* Email */}
+          {/* Name */}
           <div>
+            <label
+              htmlFor="name"
+              className="mb-2 block text-sm font-medium text-slate-300"
+            >
+              Suna
+            </label>
+
+            <input
+              id="name"
+              type="text"
+              autoComplete="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Sunanka"
+              disabled={loading}
+              className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 disabled:cursor-not-allowed disabled:opacity-60"
+            />
+          </div>
+
+          {/* Email */}
+          <div className="mt-5">
             <label
               htmlFor="email"
               className="mb-2 block text-sm font-medium text-slate-300"
@@ -123,13 +171,17 @@ const LoginPage = ({ onLoginSuccess }) => {
             <input
               id="password"
               type="password"
-              autoComplete="current-password"
+              autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
+              placeholder="Akalla haruffa 6"
               disabled={loading}
               className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 disabled:cursor-not-allowed disabled:opacity-60"
             />
+
+            <p className="mt-2 text-xs text-slate-600">
+              Password ya kasance akalla haruffa 6.
+            </p>
           </div>
 
           {/* Submit */}
@@ -141,21 +193,21 @@ const LoginPage = ({ onLoginSuccess }) => {
             {loading ? (
               <>
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                Ana shiga...
+                Ana yin rijista...
               </>
             ) : (
-              "Shiga"
+              "Yi rijista"
             )}
           </button>
 
-          {/* Register */}
+          {/* Login */}
           <p className="mt-6 text-center text-sm text-slate-400">
-            Ba ka da asusu?{" "}
+            Ka riga ka da asusu?{" "}
             <Link
-              to="/register"
+              to="/login"
               className="font-medium text-blue-400 transition hover:text-blue-300 hover:underline"
             >
-              Yi rijista
+              Shiga
             </Link>
           </p>
         </form>
@@ -179,4 +231,4 @@ const LoginPage = ({ onLoginSuccess }) => {
   );
 };
 
-export default LoginPage;
+export default RegisterPage;

@@ -1,41 +1,76 @@
 import { useEffect, useRef, useState } from "react";
+import type { FormEvent, RefObject } from "react";
+
 import {
   sendMessage,
   getConversations,
   getConversationById,
   deleteConversation,
 } from "../services/aiApi";
+
 import { logoutUser } from "../services/authApi";
 
 import ChatSidebar from "../components/chat/ChatSidebar";
 import ChatMessages from "../components/chat/ChatMessages";
 import ChatInput from "../components/chat/ChatInput";
 
-const MODES = [
+interface User {
+  _id?: string;
+  name?: string;
+  email?: string;
+  
+}
+
+interface Mode {
+  id: "chat" | "learn" | "translate" | "job";
+  label: string;
+  icon: string;
+}
+
+interface Message {
+  role: "user" | "assistant";
+  content: string;
+}
+
+interface Conversation {
+  _id: string;
+  title?: string;
+  updatedAt: string;
+}
+
+interface ChatPageProps {
+  user: User | null;
+  onLogout?: () => void;
+}
+
+const MODES: Mode[] = [
   { id: "chat", label: "Chat", icon: "💬" },
   { id: "learn", label: "Learn", icon: "📚" },
   { id: "translate", label: "Translate", icon: "🌍" },
   { id: "job", label: "Job", icon: "💼" },
 ];
 
-const ChatPage = ({ user, onLogout }) => {
-  const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [mode, setMode] = useState("chat");
-  const [conversationId, setConversationId] = useState(null);
+const ChatPage = ({ user, onLogout }: ChatPageProps) => {
+  const [message, setMessage] = useState<string>("");
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [mode, setMode] = useState<Mode["id"]>("chat");
+  const [conversationId, setConversationId] = useState<string | null>(null);
 
-  const [conversations, setConversations] = useState([]);
-  const [loadingConversations, setLoadingConversations] = useState(false);
-  const [loadingConversation, setLoadingConversation] = useState(false);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [loadingConversations, setLoadingConversations] =
+    useState<boolean>(false);
+  const [loadingConversation, setLoadingConversation] =
+    useState<boolean>(false);
 
-  const [loggingOut, setLoggingOut] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState<boolean>(false);
+  const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
 
-  const messagesEndRef = useRef(null);
-  const inputRef = useRef(null);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  /*  LOAD CONVERSATIONS */
+  /* LOAD CONVERSATIONS */
 
   useEffect(() => {
     const loadConversations = async () => {
@@ -45,7 +80,7 @@ const ChatPage = ({ user, onLogout }) => {
         const data = await getConversations();
 
         setConversations(data || []);
-      } catch (error) {
+      } catch (error: unknown) {
         console.error("Load conversations error:", error);
       } finally {
         setLoadingConversations(false);
@@ -55,7 +90,7 @@ const ChatPage = ({ user, onLogout }) => {
     loadConversations();
   }, []);
 
-  /*  AUTO SCROLL  */
+  /* AUTO SCROLL */
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({
@@ -63,16 +98,16 @@ const ChatPage = ({ user, onLogout }) => {
     });
   }, [messages, loading]);
 
-  /* LOGOUT  */
+  /* LOGOUT */
 
-  const handleLogout = async () => {
+  const handleLogout = async (): Promise<void> => {
     if (loggingOut) return;
 
     setLoggingOut(true);
 
     try {
       await logoutUser();
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Logout error:", error);
     } finally {
       onLogout?.();
@@ -80,9 +115,9 @@ const ChatPage = ({ user, onLogout }) => {
     }
   };
 
-  /* NEW CHAT  */
+  /* NEW CHAT */
 
-  const handleNewChat = () => {
+  const handleNewChat = (): void => {
     if (loading || loadingConversation) return;
 
     setMessages([]);
@@ -96,9 +131,9 @@ const ChatPage = ({ user, onLogout }) => {
     }, 100);
   };
 
-  /*  CLEAR CHAT  */
+  /* CLEAR CHAT */
 
-  const handleClearChat = () => {
+  const handleClearChat = (): void => {
     if (loading || loadingConversation) return;
 
     setMessages([]);
@@ -109,9 +144,9 @@ const ChatPage = ({ user, onLogout }) => {
     }, 100);
   };
 
-  /* MODE CHANGE  */
+  /* MODE CHANGE */
 
-  const handleModeChange = (newMode) => {
+  const handleModeChange = (newMode: Mode["id"]): void => {
     if (loading || loadingConversation || newMode === mode) {
       return;
     }
@@ -126,9 +161,9 @@ const ChatPage = ({ user, onLogout }) => {
     }, 100);
   };
 
-  /*  SELECT CONVERSATION  */
+  /* SELECT CONVERSATION */
 
-  const handleSelectConversation = async (id) => {
+  const handleSelectConversation = async (id: string): Promise<void> => {
     if (
       loading ||
       loadingConversation ||
@@ -148,23 +183,25 @@ const ChatPage = ({ user, onLogout }) => {
       setMode("chat");
 
       setMessages(
-        (data.messages || []).map((msg) => ({
-          role: msg.role,
-          content: msg.content,
-        }))
+        (data.messages || []).map(
+          (msg: { role: "user" | "assistant"; content: string }) => ({
+            role: msg.role,
+            content: msg.content,
+          })
+        )
       );
 
       setSidebarOpen(false);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Load conversation error:", error);
     } finally {
       setLoadingConversation(false);
     }
   };
 
-  /*  DELETE CONVERSATION  */
+  /* DELETE CONVERSATION */
 
-  const handleDeleteConversation = async (id) => {
+  const handleDeleteConversation = async (id: string): Promise<void> => {
     if (loading || loadingConversation) return;
 
     try {
@@ -178,14 +215,14 @@ const ChatPage = ({ user, onLogout }) => {
         setMessages([]);
         setConversationId(null);
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Delete conversation error:", error);
     }
   };
 
-  /*  SEND MESSAGE    */
+  /* SEND MESSAGE */
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
 
     const userMessage = message.trim();
@@ -233,7 +270,7 @@ const ChatPage = ({ user, onLogout }) => {
           content: data.reply,
         },
       ]);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Chat error:", error);
 
       setMessages((prev) => [
@@ -253,7 +290,7 @@ const ChatPage = ({ user, onLogout }) => {
     }
   };
 
-  /*  UI */
+  /* UI */
 
   const currentModeLabel =
     mode === "chat"
@@ -263,6 +300,7 @@ const ChatPage = ({ user, onLogout }) => {
   return (
     <div className="flex h-dvh overflow-hidden bg-slate-950 text-white">
       {/* SIDEBAR */}
+
       <ChatSidebar
         user={user}
         conversations={conversations}
@@ -280,11 +318,14 @@ const ChatPage = ({ user, onLogout }) => {
       />
 
       {/* MAIN */}
+
       <main className="flex min-w-0 flex-1 flex-col">
         {/* TOP HEADER */}
+
         <header className="flex h-16 shrink-0 items-center justify-between border-b border-slate-800/70 px-4 sm:px-6">
           <div className="flex min-w-0 items-center gap-3">
             {/* Mobile menu */}
+
             <button
               type="button"
               onClick={() => setSidebarOpen(true)}
@@ -329,6 +370,7 @@ const ChatPage = ({ user, onLogout }) => {
         </header>
 
         {/* CHAT CONTENT */}
+
         <div className="flex min-h-0 flex-1 flex-col">
           <ChatMessages
             messages={messages}

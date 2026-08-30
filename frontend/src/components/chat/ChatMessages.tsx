@@ -1,5 +1,35 @@
+import type { CSSProperties } from "react";
 import logo from "../../assets/logo-navbar.png";
 
+interface Message {
+  role: "user" | "assistant";
+  content: string;
+}
+
+interface User {
+  _id?: string;
+  name?: string;
+  email?: string;
+}
+
+type ModeId = "chat" | "learn" | "translate" | "job";
+
+interface ChatMode {
+  id: ModeId;
+  label: string;
+  icon: string;
+}
+
+interface ChatMessagesProps {
+  messages: Message[];
+  loading: boolean;
+  loadingConversation: boolean;
+  user: User | null;
+  mode: ModeId;
+  modes: ChatMode[];
+  onModeChange: (newMode: ModeId) => void;
+  messagesEndRef: React.RefObject<HTMLDivElement | null>;
+}
 const ChatMessages = ({
   messages,
   loading,
@@ -9,10 +39,11 @@ const ChatMessages = ({
   modes,
   onModeChange,
   messagesEndRef,
-}) => {
+}: ChatMessagesProps) => {
   return (
     <div className="flex-1 overflow-y-auto">
       <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6">
+
         {/* Loading conversation */}
         {loadingConversation && (
           <div className="mb-6 text-center text-sm text-slate-500">
@@ -23,6 +54,7 @@ const ChatMessages = ({
         {/* Empty state */}
         {messages.length === 0 && !loadingConversation && (
           <div className="flex min-h-[55vh] flex-col items-center justify-center text-center">
+
             <img
               src={logo}
               alt="HausaAI"
@@ -92,6 +124,7 @@ const ChatMessages = ({
                     : "justify-start"
                 }`}
               >
+
                 {/* AI Avatar */}
                 {!isUser && (
                   <img
@@ -142,21 +175,27 @@ const ChatMessages = ({
 
               <div className="rounded-2xl rounded-bl-md bg-slate-900 px-5 py-4">
                 <div className="flex items-center gap-1.5">
+
                   <span className="h-2 w-2 animate-bounce rounded-full bg-slate-500" />
 
                   <span
                     className="h-2 w-2 animate-bounce rounded-full bg-slate-500"
-                    style={{
-                      animationDelay: "150ms",
-                    }}
+                    style={
+                      {
+                        animationDelay: "150ms",
+                      } as CSSProperties
+                    }
                   />
 
                   <span
                     className="h-2 w-2 animate-bounce rounded-full bg-slate-500"
-                    style={{
-                      animationDelay: "300ms",
-                    }}
+                    style={
+                      {
+                        animationDelay: "300ms",
+                      } as CSSProperties
+                    }
                   />
+
                 </div>
               </div>
             </div>

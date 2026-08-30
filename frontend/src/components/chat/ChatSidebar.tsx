@@ -1,4 +1,34 @@
+import type { Dispatch, SetStateAction } from "react";
 import logo from "../../assets/logo-navbar.png";
+
+interface User {
+  _id?: string;
+  name?: string;
+  email?: string;
+}
+
+interface Conversation {
+  _id: string;
+  title?: string;
+  updatedAt: string;
+}
+
+interface ChatSidebarProps {
+  user: User | null;
+  conversations: Conversation[];
+  loadingConversations: boolean;
+  loading: boolean;
+  loadingConversation: boolean;
+  loggingOut: boolean;
+  conversationId: string | null;
+  sidebarOpen: boolean;
+  setSidebarOpen: Dispatch<SetStateAction<boolean>>;
+  onNewChat: () => void;
+  onSelectConversation: (id: string) => void;
+  onDeleteConversation: (id: string) => void;
+  onLogout: () => void;
+}
+
 const ChatSidebar = ({
   user,
   conversations,
@@ -13,7 +43,7 @@ const ChatSidebar = ({
   onSelectConversation,
   onDeleteConversation,
   onLogout,
-}) => {
+}: ChatSidebarProps) => {
   const ConversationList = () => (
     <div className="flex-1 overflow-y-auto px-3 py-3">
       {loadingConversations ? (
@@ -74,8 +104,7 @@ const ChatSidebar = ({
 
   return (
     <>
-      {/*DESKTOP SIDEBAR  */}
-
+      {/* DESKTOP SIDEBAR */}
       <aside className="hidden w-[280px] shrink-0 flex-col border-r border-slate-800/80 bg-slate-900/70 md:flex">
         {/* Logo */}
         <div className="flex items-center gap-3 px-5 py-5">
@@ -145,8 +174,7 @@ const ChatSidebar = ({
         </div>
       </aside>
 
-      {/* ================= MOBILE SIDEBAR ================= */}
-
+      {/* MOBILE SIDEBAR */}
       {sidebarOpen && (
         <div className="fixed inset-0 z-50 flex md:hidden">
           <div className="flex w-[280px] flex-col border-r border-slate-800 bg-slate-900">

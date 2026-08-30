@@ -1,5 +1,10 @@
-import { useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useEffect, useState, type ReactNode } from "react";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 
 import LandingPage from "./pages/LandingPage";
 import ChatPage from "./pages/ChatPage";
@@ -7,9 +12,25 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import { getCurrentUser } from "./services/authApi";
 
+interface User {
+  _id?: string;
+  name?: string;
+  email?: string;
+}
+
+interface ProtectedRouteProps {
+  user: User | null;
+  checking: boolean;
+  children: ReactNode;
+}
+
 // Blocks access until we know the user is logged in.
 // Redirects to /login if not authenticated.
-function ProtectedRoute({ user, checking, children }) {
+function ProtectedRoute({
+  user,
+  checking,
+  children,
+}: ProtectedRouteProps) {
   if (checking) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-950 text-slate-400">
@@ -26,7 +47,7 @@ function ProtectedRoute({ user, checking, children }) {
 }
 
 function App() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
   const [checking, setChecking] = useState(true);
 
   // On first load, check if there's already a valid session cookie
@@ -88,14 +109,23 @@ function App() {
         <Route
           path="/chat"
           element={
-            <ProtectedRoute user={user} checking={checking}>
-              <ChatPage user={user} onLogout={() => setUser(null)} />
+            <ProtectedRoute
+              user={user}
+              checking={checking}
+            >
+              <ChatPage
+                user={user}
+                onLogout={() => setUser(null)}
+              />
             </ProtectedRoute>
           }
         />
 
         {/* Any unknown path falls back to the landing route */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route
+          path="*"
+          element={<Navigate to="/" replace />}
+        />
       </Routes>
     </BrowserRouter>
   );

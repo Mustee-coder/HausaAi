@@ -1,3 +1,39 @@
+import type {
+  FormEvent,
+  ChangeEvent,
+  RefObject,
+} from "react";
+
+interface Mode {
+  id: string;
+  label: string;
+  icon: string;
+}
+
+interface ChatInputProps {
+  message: string;
+  setMessage: (message: string) => void;
+
+  mode: "chat" | "learn" | "translate" | "job";
+
+  modes: {
+    id: "chat" | "learn" | "translate" | "job";
+    label: string;
+    icon: string;
+  }[];
+
+  loading: boolean;
+  loadingConversation: boolean;
+
+  inputRef: React.RefObject<HTMLInputElement | null>;
+
+  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+
+  onModeChange: (
+    newMode: "chat" | "learn" | "translate" | "job"
+  ) => void;
+}
+
 const ChatInput = ({
   message,
   setMessage,
@@ -8,10 +44,15 @@ const ChatInput = ({
   inputRef,
   onSubmit,
   onModeChange,
-}) => {
+}: ChatInputProps) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setMessage(e.target.value);
+  };
+
   return (
     <div className="shrink-0 px-3 pb-3 pt-2 sm:px-6 sm:pb-5">
       <div className="mx-auto max-w-3xl">
+
         {/* Mode selector */}
         <div className="mb-2 flex gap-1 overflow-x-auto">
           {modes.map((item) => (
@@ -41,7 +82,7 @@ const ChatInput = ({
             ref={inputRef}
             type="text"
             value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            onChange={handleChange}
             placeholder={
               mode === "chat"
                 ? "Rubuta saƙonka..."
@@ -74,6 +115,7 @@ const ChatInput = ({
           HausaAI na iya yin kuskure. Ka tabbatar da
           muhimman bayanai.
         </p>
+
       </div>
     </div>
   );

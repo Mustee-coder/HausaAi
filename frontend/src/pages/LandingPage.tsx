@@ -2,26 +2,41 @@ import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
+interface FeatureProps {
+  icon: string;
+  title: string;
+  description: string;
+}
+
+interface StepProps {
+  number: string;
+  title: string;
+  description: string;
+}
+
+interface UseCaseProps {
+  icon: string;
+  title: string;
+  description: string;
+}
+
 const LandingPage = () => {
   return (
     <main className="min-h-screen overflow-hidden bg-slate-950 text-white">
       <Navbar />
 
-      {/*  HERO  */}
+      {/* HERO */}
       <section className="relative">
-        {/* Background glows */}
         <div className="pointer-events-none absolute left-1/2 top-10 h-80 w-80 -translate-x-1/2 rounded-full bg-blue-600/20 blur-3xl" />
 
         <div className="pointer-events-none absolute left-10 top-1/2 h-64 w-64 rounded-full bg-indigo-600/10 blur-3xl" />
 
         <div className="relative mx-auto flex min-h-[78vh] max-w-5xl flex-col items-center justify-center px-6 py-20 text-center">
-          {/* Badge */}
           <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-blue-500/20 bg-blue-500/10 px-4 py-2 text-sm text-blue-300">
             <span className="h-2 w-2 animate-pulse rounded-full bg-blue-400" />
             AI domin masu magana da Hausa
           </div>
 
-          {/* Heading */}
           <h1 className="max-w-4xl text-4xl font-bold leading-tight tracking-tight sm:text-6xl lg:text-7xl">
             AI da yake
             <span className="block text-blue-500">
@@ -29,14 +44,12 @@ const LandingPage = () => {
             </span>
           </h1>
 
-          {/* Description */}
           <p className="mt-7 max-w-2xl text-base leading-8 text-slate-400 sm:text-lg">
             HausaAI AI assistant ne da aka gina domin taimaka wa
             masu magana da Hausa wajen koyo, fassara, fahimtar
             bayanai da samun taimako kan ayyuka.
           </p>
 
-          {/* Buttons */}
           <div className="mt-9 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
             <Link
               to="/chat"
@@ -53,7 +66,6 @@ const LandingPage = () => {
             </a>
           </div>
 
-          {/* Trust / Technology */}
           <div className="mt-8 flex flex-col items-center gap-2 text-xs text-slate-500">
             <p>
               An gina shi domin masu magana da Hausa a Najeriya 🇳🇬
@@ -66,7 +78,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/*  FEATURES  */}
+      {/* FEATURES */}
       <section
         id="features"
         className="mx-auto max-w-6xl px-6 pb-24"
@@ -113,7 +125,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/*  HOW IT WORKS  */}
+      {/* HOW IT WORKS */}
       <section className="border-t border-slate-900 bg-slate-950 px-6 py-24">
         <div className="mx-auto max-w-6xl">
           <div className="mb-12 text-center">
@@ -153,13 +165,12 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/*  PROBLEM / SOLUTION */}
+      {/* PROBLEM / SOLUTION */}
       <section
         id="about"
         className="border-t border-slate-900 px-6 py-24"
       >
         <div className="mx-auto grid max-w-6xl gap-12 md:grid-cols-2 md:items-center">
-          {/* Problem */}
           <div>
             <p className="text-sm font-semibold uppercase tracking-wider text-blue-400">
               Matsalar
@@ -176,7 +187,6 @@ const LandingPage = () => {
             </p>
           </div>
 
-          {/* Solution */}
           <div className="rounded-3xl border border-blue-500/20 bg-blue-500/5 p-8">
             <p className="text-sm font-semibold uppercase tracking-wider text-blue-400">
               Maganin HausaAI
@@ -213,7 +223,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/*  USE CASES  */}
+      {/* USE CASES */}
       <section className="border-t border-slate-900 px-6 py-24">
         <div className="mx-auto max-w-6xl">
           <div className="mb-10 text-center">
@@ -254,10 +264,9 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* CTA  */}
+      {/* CTA */}
       <section className="px-6 pb-24 pt-8">
         <div className="relative mx-auto max-w-5xl overflow-hidden rounded-3xl border border-blue-500/20 bg-blue-500/10 p-10 text-center sm:p-14">
-          {/* Glow */}
           <div className="pointer-events-none absolute left-1/2 top-0 h-40 w-40 -translate-x-1/2 rounded-full bg-blue-500/20 blur-3xl" />
 
           <div className="relative">
@@ -289,9 +298,13 @@ const LandingPage = () => {
   );
 };
 
-/*  FEATURE COMPONENT  */
+/* FEATURE COMPONENT */
 
-const Feature = ({ icon, title, description }) => {
+const Feature = ({
+  icon,
+  title,
+  description,
+}: FeatureProps) => {
   return (
     <div className="group rounded-2xl border border-slate-800 bg-slate-900/60 p-6 transition duration-300 hover:-translate-y-1 hover:border-blue-500/30 hover:bg-slate-900">
       <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-slate-800 text-xl transition group-hover:bg-blue-500/10">
@@ -311,7 +324,11 @@ const Feature = ({ icon, title, description }) => {
 
 /* HOW IT WORKS */
 
-const Step = ({ number, title, description }) => {
+const Step = ({
+  number,
+  title,
+  description,
+}: StepProps) => {
   return (
     <div className="relative rounded-2xl border border-slate-800 bg-slate-900/50 p-7">
       <span className="text-sm font-bold text-blue-500">
@@ -329,9 +346,13 @@ const Step = ({ number, title, description }) => {
   );
 };
 
-/* USE CASE*/
+/* USE CASE */
 
-const UseCase = ({ icon, title, description }) => {
+const UseCase = ({
+  icon,
+  title,
+  description,
+}: UseCaseProps) => {
   return (
     <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 transition hover:border-blue-500/30 hover:bg-slate-900/70">
       <div className="text-2xl">
