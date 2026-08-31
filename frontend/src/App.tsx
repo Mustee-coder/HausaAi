@@ -6,7 +6,6 @@ import {
   Navigate,
 } from "react-router-dom";
 
-import LandingPage from "./pages/LandingPage";
 import ChatPage from "./pages/ChatPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
@@ -24,8 +23,6 @@ interface ProtectedRouteProps {
   children: ReactNode;
 }
 
-// Blocks access until we know the user is logged in.
-// Redirects to /login if not authenticated.
 function ProtectedRoute({
   user,
   checking,
@@ -50,7 +47,6 @@ function App() {
   const [user, setUser] = useState<User | null>(null);
   const [checking, setChecking] = useState(true);
 
-  // On first load, check if there's already a valid session cookie
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -69,6 +65,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Home */}
         <Route
           path="/"
           element={
@@ -79,11 +76,12 @@ function App() {
             ) : user ? (
               <Navigate to="/chat" replace />
             ) : (
-              <LandingPage />
+              <Navigate to="/login" replace />
             )
           }
         />
 
+        {/* Login */}
         <Route
           path="/login"
           element={
@@ -95,6 +93,7 @@ function App() {
           }
         />
 
+        {/* Register */}
         <Route
           path="/register"
           element={
@@ -106,6 +105,7 @@ function App() {
           }
         />
 
+        {/* Protected Chat */}
         <Route
           path="/chat"
           element={
@@ -121,7 +121,7 @@ function App() {
           }
         />
 
-        {/* Any unknown path falls back to the landing route */}
+        {/* Unknown routes */}
         <Route
           path="*"
           element={<Navigate to="/" replace />}

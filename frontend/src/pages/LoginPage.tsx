@@ -176,15 +176,7 @@ const LoginPage = ({ onLoginSuccess }: LoginPageProps) => {
           </p>
         </form>
 
-        {/* Back to home */}
-        <div className="mt-6 text-center">
-          <Link
-            to="/"
-            className="text-sm text-slate-500 transition hover:text-slate-300"
-          >
-            ← Komawa homepage
-          </Link>
-        </div>
+    
 
         {/* Footer note */}
         <p className="mt-8 text-center text-xs text-slate-600">
